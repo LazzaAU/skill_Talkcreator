@@ -1,0 +1,15 @@
+{
+	"name": "talkcreator",
+	"version": "0.0.1",
+	"category": "projectalice",
+	"dependencies": {},
+	"author": "Lazzaau",
+	"license": "GPLv3",
+	"node-red": {
+		"nodes": {
+			"runtalkcreator": "runtalkcreator.js"
+
+		}
+	},
+	"devDependencies": {}
+}
