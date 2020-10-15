@@ -56,7 +56,10 @@ class CopyTooTalk:
 			for position, line in enumerate(fileData.split("\n")):
 				# iterate over the line looking for system and dialog messages
 				for item in self._msgList:
-
+					if '(text=' in line:
+						print(f'Skipping this line as it looks like its already done. {line}')
+						self._newCode = f'{self._newCode}\n{line}'
+						break
 					# if self.logInfo for example is in the line of text
 					if f'self.{item}(msg=' in line:
 						print("")
@@ -106,11 +109,11 @@ class CopyTooTalk:
 			start = '(msg=f\''
 			end = '\')'
 		elif '(msg=' in line:
-			print(f'just found (msg= in the line ')
 			start = '(msg=\''
 			end = '\')'
 		else:
 			print('OOPS, something went wrong )')
+			return
 
 		# if the line is a f string then change the start line position
 		if 'msg=f' in line:

@@ -32,6 +32,14 @@ class Talkcreator(AliceSkill):
 		)
 
 
+	def thirdTestmethod(self, session: DialogSession, **_kwargs):
+		tester = "good one"
+		self.say(
+			text=self.randomTalk(text='sayHelloToTalkCreator', replace=[tester]),
+			siteId=session.siteId
+		)
+
+
 	def testLine(self):
 		test = "testVar"
 		test2 = 'test2'
