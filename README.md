@@ -19,7 +19,12 @@ Creates the talk file for loginfo type code
 In normal use, you would write your entire skill then run the TalkCreator script
  to create a talks file which you can then add second and third etc random lines to manually..
  This script gets rid of the boring , time consuming bits :)
-  
+
+**Second NOTE**
+
+ - **Running this on a existing py file **WILL** overwrite your existing talks folder**
+ - Remember from above... it's for use with newly created skills and a blank talks folder
+
 See doc string in TalkCreator.py for more info on the skill
 
 **To setup your run configuration in pycharm **
@@ -28,6 +33,11 @@ See doc string in TalkCreator.py for more info on the skill
 2. For paramaters field  = ```$FilePath$ $ContentRoot$```
 3. working directory shoudl automatically be filed when you select the script
 4. Excecution boxes can all stay unticked
-5  oh and name it whatever, maybe ```talkCreator```?
+5. oh and name it whatever, maybe ```talkCreator```?
 
 Refer configSETUP.png if stuck
+
+If you know how to fix lines 198 etc to stop writing ```self._extractedVarsForPYfile``` as strings
+feel free to fix it and let me know :)
+
+
