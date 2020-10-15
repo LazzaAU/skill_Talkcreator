@@ -13,7 +13,7 @@ Creates the talk file for loginfo type code
 
 **NOTE: THIS IS NOT A ALICE SKILL......**
     - This is just packaged as a skill for testing reasons.
-    - to test the skill you can do the below steps on making run configurations
+    - To test the skill you can do the below steps on making run configurations
         then open testPY.py file and run the configuration on this file to see the outcome
         
 In normal use, you would write your entire skill then run the TalkCreator script
@@ -22,8 +22,9 @@ In normal use, you would write your entire skill then run the TalkCreator script
 
 **Second NOTE**
 
- - **Running this on a existing py file **WILL** overwrite your existing talks folder**
- - Remember from above... it's for use with newly created skills and a blank talks folder
+ - **this code "SHOULD" append data to your Talks file. So with a clean talks file you'll get a clean listing in the 
+ talks file. With existing data in the json file you'll get the new data appended at the start of the file
+  and the old talk data towards the end. That way you can still manually modify the json data if needed
 
 See doc string in TalkCreator.py for more info on the skill
 
@@ -31,13 +32,19 @@ See doc string in TalkCreator.py for more info on the skill
 
 1. For the script field = point it to TalkCreator.py file
 2. For paramaters field  = ```$FilePath$ $ContentRoot$```
-3. working directory shoudl automatically be filed when you select the script
+3. Working directory shoudl automatically be filed when you select the script
 4. Excecution boxes can all stay unticked
 5. oh and name it whatever, maybe ```talkCreator```?
 
-Refer configSETUP.png if stuck
+Refer configSETUP.png if stuck.
 
-If you know how to fix lines 198 etc to stop writing ```self._extractedVarsForPYfile``` as strings
-feel free to fix it and let me know :)
+Extra Tip....
+
+- Run this code to push existing System Log messages to the talks file
+- Then use the translator skill to translate your System Log messages to other languages
+- Now the world gets to read System Logs in their natural language :)
+
+ 
+
 
 

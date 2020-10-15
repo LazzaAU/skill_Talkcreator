@@ -28,11 +28,11 @@ class Talkcreator(AliceSkill):
 	def secondTestIntent(self, session: DialogSession, **_kwargs):
 		self.continueDialog(
 			sessionId=session.sessionId,
-			text='this is not a f string dialog session'
+			text='This is dialog session without f strings and variables'
 		)
 
 
-	def thirdTestmethod(self, session: DialogSession, **_kwargs):
+	def thirdTestMethod(self, session: DialogSession, **_kwargs):
 		tester = "good one"
 		self.say(
 			text=self.randomTalk(text='sayHelloToTalkCreator', replace=[tester]),
@@ -45,8 +45,8 @@ class Talkcreator(AliceSkill):
 		test2 = 'test2'
 		test3 = "test3"
 		self.logInfo(msg=f'I\'m a logInfo message {test}')
-		self.logWarning(msg=f'heres a warning message {test2} and {test3}')
+		self.logWarning(msg=f'Heres a warning message {test2} and {test3}')
 		print('random print statement')
-		self.logError(msg='Throwing a error message into the mix')
-		self.logDebug(msg='here is a debug message')
-		self.logCritical(msg=f'lets write a critical message')
+		self.logError(msg='Throwing a error message into the mix without F strings')
+		self.logDebug(msg='Here is a debug message without f strings')
+		self.logCritical(msg=f'lets write a critical message. You used {test} but {test2} should be used: error is : {test3} ')

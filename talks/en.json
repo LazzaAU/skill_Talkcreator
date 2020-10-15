@@ -1,1 +1,7 @@
-{}
+{
+    "thisLineShouldStay": {
+        "default": [
+            "I should end up at the bottom of this list"
+        ]
+    }
+}

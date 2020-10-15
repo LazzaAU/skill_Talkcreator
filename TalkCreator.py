@@ -24,11 +24,8 @@ class CopyTooTalk:
 	It will also substitue {time} for {0} (or {1} etc depending on amount of vars)
 	when writing to the talks file.
 
-	NOTE: When writing to the talks file it overwrites any existsing data so best used once you've written your initial code
-	then add extra lines manually, but at least the boring parts are already done by then :)
-
-	PS: Current code adds the variables to the Py file as strings (with quotes) and have not yet worked out
-	how to remove those quotes in this situation as .stip etc seem to have no effect
+	NOTE: When writing to the talks file it "appends"  to any existing json data. So you can then do what you wish
+	with the talks file once written, IE: delete old data, copy over old lines, leave it as it is etc
 
 	"""
 
@@ -44,7 +41,6 @@ class CopyTooTalk:
 		self._aDialogMessage = False
 		self._copyOfOriginalText = ""
 		self._usingFStrings = False
-
 
 	def checkForLogInfo(self):
 
@@ -96,8 +92,8 @@ class CopyTooTalk:
 	def extractTheMessage(self, line):
 		# Set a counter for adding numbers to the talksfile dicionary item
 		self._counter += 1
-		start = ""
-		end = ""
+		# start = ""
+		# end = ""
 		# look up the line for (msg= and grab all text after that untill  ==> ')
 		if 'text=f' in line:
 			start = 'text=f'
@@ -153,13 +149,13 @@ class CopyTooTalk:
 			if '{' in potentialVariable:
 
 				# extract the actual Potentialvariable name from between the { and the }, then add to a list
-				extractedVariable = potentialVariable[potentialVariable.find(newStart) + len(newStart):potentialVariable.rfind(newEnd)]
+				extractedVariable = potentialVariable[potentialVariable.find(newStart) + len(newStart):potentialVariable.rfind(newEnd)].replace(" ", "")
 				# add those extracted variables to a list for use with the py re writing
 				self._extractedVarsForPYfile.append(extractedVariable)
 				# print(f'just appended {extractedVariable} to the list = {self._extractedVarsForPYfile}')
 
 				# change the Potentialvariable to {Number} for the talk file
-				newIndexVariable = f'{{i}}'.strip(" ")
+				newIndexVariable = f' {i}.'.replace(" ", "{").replace(".", "}")
 				newText = textForTalkFile.replace(completeVariable, newIndexVariable)
 				# Copy newText back to textForTalkFile to reduce confusion
 				textForTalkFile = newText
@@ -190,17 +186,30 @@ class CopyTooTalk:
 		# If we have extracted vars
 		replaceThisText = ""
 		withThisText = ""
+		elementsInList = len(self._extractedVarsForPYfile)
+
+		# Only way i could get the var from the list without the quotes *shrug*
+		cleanValuesFromList = ""
+		if elementsInList > 1 and self._extractedVarsForPYfile:
+			for x in self._extractedVarsForPYfile:
+				cleanValuesFromList = f'{x} {cleanValuesFromList}'
+			cleanValuesFromList = cleanValuesFromList.replace(" ", ",", elementsInList - 1)
+			print(cleanValuesFromList)
+		elif elementsInList == 1:
+			cleanValuesFromList = self._extractedVarsForPYfile[0]
+		else:
+			cleanValuesFromList = self._extractedVarsForPYfile
 
 		if self._extractedVarsForPYfile:
 			# if the line is not a dialog message and has variables and uses a f string
 			if not self._aDialogMessage and self._usingFStrings:
 				replaceThisText = f'(msg=f\'{self._copyOfOriginalText}\')'
-				withThisText = f'(self.randomTalk(text="systemMessage{self._counter}", replace={self._extractedVarsForPYfile}))'
+				withThisText = f'(self.randomTalk(text="systemMessage{self._counter}", replace=[{cleanValuesFromList}]))'
 
 			elif self._aDialogMessage and self._usingFStrings:
 				# if the line is a dialog message and has variables and uses a f String
 				replaceThisText = f'f\'{self._copyOfOriginalText}\''
-				withThisText = f'self.randomTalk(text="dialogMessage{self._counter}", replace={self._extractedVarsForPYfile})'
+				withThisText = f'self.randomTalk(text="dialogMessage{self._counter}", replace=[{cleanValuesFromList}])'
 				# reset textInput status
 				self._aDialogMessage = False
 
@@ -264,12 +273,16 @@ class CopyTooTalk:
 		self.writeToTalkFile()
 
 
-	# write changes tot he talk file
+	# write changes to the talk file
 	def writeToTalkFile(self):
-		talksFilePath = Path(f'{sys.argv[2]}/talks/en.json')
+		file = Path(f'{sys.argv[2]}/talks/en.json')
 
-		with open(talksFilePath, 'w') as writer:
-			json.dump(self._finalTalk, writer, sort_keys=True, ensure_ascii=False, indent=4)
+		with open(file, 'r+') as file:
+			exisitingTalkData = json.load(file)
+			exisitingTalkData.update(self._finalTalk)
+
+			file.seek(0)
+			json.dump(exisitingTalkData, file, sort_keys=True, ensure_ascii=False, indent=4)
 
 
 copy2talk = CopyTooTalk()
