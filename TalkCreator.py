@@ -37,9 +37,9 @@ class CopyTooTalk:
 
 	**To run**
 
-	Open the py file in pycharm then "run talkCreator"  or whatever you called it
+	Open a skills .py file you want to scan in pycharm. Then "run" "talkCreator"  or whatever you called it
 
-	PS - Change line 291 to point to your talks language file
+	PS - Change line 291 to point to your talks language file IE: de.json. Default is en.json
 	"""
 
 
