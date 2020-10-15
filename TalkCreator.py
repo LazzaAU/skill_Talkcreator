@@ -27,6 +27,19 @@ class CopyTooTalk:
 	NOTE: When writing to the talks file it "appends"  to any existing json data. So you can then do what you wish
 	with the talks file once written, IE: delete old data, copy over old lines, leave it as it is etc
 
+	**To setup your run configuration in pycharm **
+
+	1. For the script field = point it to TalkCreator.py file
+	2. For paramaters field = $FilePath$ $ContentRoot$
+	3. Working directory shoudl automatically be filed when you select the script
+	4. Excecution boxes can all stay unticked
+	5. oh and name it whatever, maybe talkCreator?
+
+	**To run**
+
+	Open the py file in pycharm then "run talkCreator"  or whatever you called it
+
+	PS - Change line 291 to point to your talks language file
 	"""
 
 
@@ -52,7 +65,7 @@ class CopyTooTalk:
 			for position, line in enumerate(fileData.split("\n")):
 				# iterate over the line looking for system and dialog messages
 				for item in self._msgList:
-					if '(text=' in line:
+					if 'self.randomTalk' in line:
 						print(f'Skipping this line as it looks like its already done. {line}')
 						self._newCode = f'{self._newCode}\n{line}'
 						break
@@ -92,9 +105,8 @@ class CopyTooTalk:
 	def extractTheMessage(self, line):
 		# Set a counter for adding numbers to the talksfile dicionary item
 		self._counter += 1
-		# start = ""
-		# end = ""
-		# look up the line for (msg= and grab all text after that untill  ==> ')
+
+		# look up the line for start points and grab all text after that untill  end oint
 		if 'text=f' in line:
 			start = 'text=f'
 			end = '\''
@@ -108,7 +120,7 @@ class CopyTooTalk:
 			start = '(msg=\''
 			end = '\')'
 		else:
-			print('OOPS, something went wrong )')
+			print('OOPS, something went wrong. The line probably doesn\'t have a text string and is using a var ??')
 			return
 
 		# if the line is a f string then change the start line position
@@ -193,8 +205,9 @@ class CopyTooTalk:
 		if elementsInList > 1 and self._extractedVarsForPYfile:
 			for x in self._extractedVarsForPYfile:
 				cleanValuesFromList = f'{x} {cleanValuesFromList}'
+			#add commas
 			cleanValuesFromList = cleanValuesFromList.replace(" ", ",", elementsInList - 1)
-			print(cleanValuesFromList)
+
 		elif elementsInList == 1:
 			cleanValuesFromList = self._extractedVarsForPYfile[0]
 		else:
