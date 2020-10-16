@@ -30,7 +30,7 @@ class CopyTooTalk:
 	**To setup your run configuration in pycharm **
 
 	1. For the script field = point it to TalkCreator.py file
-	2. For paramaters field = $FilePath$ $ContentRoot$
+	2. For paramaters field = $FilePath$ $ContentRoot$ en
 	3. Working directory shoudl automatically be filed when you select the script
 	4. Excecution boxes can all stay unticked
 	5. oh and name it whatever, maybe talkCreator?
@@ -39,7 +39,10 @@ class CopyTooTalk:
 
 	Open a skills .py file you want to scan in pycharm. Then "run" "talkCreator"  or whatever you called it
 
-	PS - Change line 291 to point to your talks language file IE: de.json. Default is en.json
+	PS - make sure to set the correct language variable in the configuration paramaters. As per point #2 above
+	it reflects en for english
+
+	EG parmeters = $FilePath$ $ContentRoot$ en or $FilePath$ $ContentRoot$ de etc
 	"""
 
 
@@ -298,8 +301,8 @@ class CopyTooTalk:
 
 	# write changes to the talk file
 	def writeToTalkFile(self):
-		file = Path(f'{sys.argv[2]}/talks/en.json')
-
+		file = Path(f'{sys.argv[2]}/talks/{sys.argv[3]}.json')
+		print(f'file path is {file}')
 		with open(file, 'r+') as file:
 			exisitingTalkData = json.load(file)
 			exisitingTalkData.update(self._finalTalk)

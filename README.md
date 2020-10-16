@@ -31,7 +31,7 @@ See doc string in TalkCreator.py for more info on the skill
 **To setup your run configuration in pycharm **
 
 1. For the script field = point it to TalkCreator.py file
-2. For paramaters field  = ```$FilePath$ $ContentRoot$```
+2. For paramaters field  = ```$FilePath$ $ContentRoot$ en``` #NOTE: replace en with your default language file IE: de or fr etc
 3. Working directory shoudl automatically be filed when you select the script
 4. Excecution boxes can all stay unticked
 5. oh and name it whatever, maybe ```talkCreator```?
