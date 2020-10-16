@@ -55,6 +55,9 @@ class CopyTooTalk:
 		self._copyOfOriginalText = ""
 		self._usingFStrings = False
 
+	#Create a class variable to shut sonar up
+	TEXT_F_STRING = 'text=f'
+
 	def checkForLogInfo(self):
 
 		# Open the PY file in read mode
@@ -107,8 +110,8 @@ class CopyTooTalk:
 		self._counter += 1
 
 		# look up the line for start points and grab all text after that untill  end oint
-		if 'text=f' in line:
-			start = 'text=f'
+		if CopyTooTalk.TEXT_F_STRING in line:
+			start = CopyTooTalk.TEXT_F_STRING
 			end = '\''
 		elif 'text=\'' in line:
 			start = 'text='
@@ -128,7 +131,7 @@ class CopyTooTalk:
 			self._usingFStrings = True
 			textForTalkFile = self.fStringMsg(line=line, start=start, end=end, xValue=0)
 
-		elif 'text=f' in line:
+		elif CopyTooTalk.TEXT_F_STRING in line:
 			self._usingFStrings = True
 			textForTalkFile = self.fStringMsg(line=line, start=start, end=end, xValue=1)
 
