@@ -181,16 +181,23 @@ class CopyTooTalk:
 
 		if not self._aDialogMessage:
 			key = 'systemMessage'
+			self._finalTalk[f'{key}{self._counter}'] = {
+				'default':
+					[
+						f'{textForTalkFile}'
+					]
+			}
 		else:
 			key = 'dialogMessage'
-
-		self._finalTalk[f'{key}{self._counter}'] = {
-			'default':
-				[
-					f'{textForTalkFile}'
+			self._finalTalk[f'{key}{self._counter}'] = {
+				'default':
+					[
+						f'{textForTalkFile}'
+					],
+				'short':[
+					""
 				]
-		}
-
+			}
 		self.createPYfileLines(textForTalkFile=textForTalkFile, line=line)
 
 
