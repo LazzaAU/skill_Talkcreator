@@ -43,6 +43,8 @@ class CopyTooTalk:
 	it reflects en for english
 
 	EG parmeters = $FilePath$ $ContentRoot$ en or $FilePath$ $ContentRoot$ de etc
+
+	TIP* Excluding the msg= from a system log message will exclude it from being processed
 	"""
 
 
