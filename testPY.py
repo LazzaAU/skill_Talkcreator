@@ -50,4 +50,4 @@ class Talkcreator(AliceSkill):
 		self.logError(msg='Throwing a error message into the mix without F strings')
 		self.logDebug(msg='Here is a debug message without f strings')
 		self.logCritical(msg=f'lets write a critical message. You used {test} but {test2} should be used: error is : {test3} ')
-		self.logInfo(f'lets write a Info message. without the msg= tag')
+		self.logInfo(f'lets write a Info message. without the msg= tag. The line should be ignored')
