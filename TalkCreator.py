@@ -45,7 +45,9 @@ class CopyTooTalk:
 	EG parmeters = $FilePath$ $ContentRoot$ en or $FilePath$ $ContentRoot$ de etc
 
 	TIP* Excluding the msg= from a system log message will exclude it from being processed
-	The script looks for text='' not text="" etc, so use single quotes
+
+	The script also looks for text='' not text="" or visa versa, depending on what the var self._speechSymbol is set to.
+	by default it's '\"' but feel free to change it to "\'" if that's your normal writing style
 
 	If you add "# TC <talksName>" above the line you want to convert it will use what ever <talkName> is
 	 instead of calling it systemMessage1 or dialogMessage2 etc. Example
@@ -57,8 +59,11 @@ class CopyTooTalk:
 	 rather than text='self.randomTalk(text="dialogMessage1")'
 
 	 ** ANOTHER TIP **
-	 Set self._testFirst to True and you can test the output without writing to any file.
+	 Set self._testMode to True and you can test the output without writing to any file.
 	 That way you can test before changing anything.Change back to false to write to file
+
+	 ** And Another **
+	 Make sure at minimum, your talks file has {}. A completely blank talks file will raise a error
 	"""
 
 
@@ -75,7 +80,8 @@ class CopyTooTalk:
 		self._usingFStrings = False
 		self._previousLine = ""
 		self.cleanCode = ""
-		self._testFirst = True
+		self._testMode = False # set to True to not write anything, set to False to write to files
+		self._speechSymbol = '\"' # set to "\'" if you normally use text='' rather than text=""
 
 	#Create a class variable to shut sonar up
 	TEXT_F_STRING = 'text=f'
@@ -136,18 +142,18 @@ class CopyTooTalk:
 		# look up the line for start points and grab all text after that untill  end point
 		if CopyTooTalk.TEXT_F_STRING in line:
 			start = CopyTooTalk.TEXT_F_STRING
-			end = '\''
-		elif 'text=\'' in line:
+			end = self._speechSymbol
+		elif f'text={self._speechSymbol}' in line:
 			start = 'text='
-			end = '\''
+			end = f'{self._speechSymbol}'
 		elif '(msg=f' in line:
-			start = '(msg=f\''
-			end = '\')'
+			start = f'(msg=f{self._speechSymbol}'
+			end = f'{self._speechSymbol})'
 		elif '(msg=' in line:
-			start = '(msg=\''
-			end = '\')'
+			start = f'(msg={self._speechSymbol}'
+			end = f'{self._speechSymbol})'
 		else:
-			print('OOPS, something went wrong. The line probably doesn\'t have a text  string and is using a var or your using \"\" instead of \'\' ??')
+			print('OOPS, something went wrong. The line probably doesn\'t have a text string and is using a var, or your using \'\' instead of \"\" ??')
 			return
 
 		# if the line is a f string then change the start line position
@@ -159,7 +165,7 @@ class CopyTooTalk:
 			self._usingFStrings = True
 			textForTalkFile = self.fStringMsg(line=line, start=start, end=end, xValue=1)
 
-		elif 'text=\'' in line:
+		elif f'text={self._speechSymbol}' in line:
 			self._usingFStrings = False
 			# if the line is not a f string and just text= then change start position to this
 			textForTalkFile = line[line.find(start) + 1 + len(start):line.rfind(end)]
@@ -275,7 +281,7 @@ class CopyTooTalk:
 		if self._extractedVarsForPYfile:
 			# if the line is not a dialog message and has variables and uses a f string
 			if not self._aDialogMessage and self._usingFStrings:
-				replaceThisText = f'(msg=f\'{self._copyOfOriginalText}\')'
+				replaceThisText = f'(msg=f{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol})'
 				if self._previousLine:
 					withThisText = f'(self.randomTalk(text="{self._previousLine}", replace=[{cleanValuesFromList}]))'
 				else:
@@ -283,7 +289,7 @@ class CopyTooTalk:
 
 			elif self._aDialogMessage and self._usingFStrings:
 				# if the line is a dialog message and has variables and uses a f String
-				replaceThisText = f'f\'{self._copyOfOriginalText}\''
+				replaceThisText = f'f{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol}'
 				if self._previousLine:
 					withThisText = f'self.randomTalk(text="{self._previousLine}", replace=[{cleanValuesFromList}])'
 				else:
@@ -303,7 +309,7 @@ class CopyTooTalk:
 			withThisText = ""
 			# if it's a system message without a variable in it but still a fstring
 			if not self._aDialogMessage and self._usingFStrings:
-				replaceThisText = f'msg=f\'{self._copyOfOriginalText}\')'
+				replaceThisText = f'msg=f{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol})'
 				if self._previousLine:
 					withThisText = f'self.randomTalk(text="{self._previousLine}"))'
 				else:
@@ -312,7 +318,7 @@ class CopyTooTalk:
 			# if its a dialog message with no vars in it and using f strings
 			elif self._aDialogMessage and self._usingFStrings:
 				# if it's a dialog message without a variable in it
-				replaceThisText = f'f\'{self._copyOfOriginalText}\''
+				replaceThisText = f'f{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol}'
 				if self._previousLine:
 					withThisText = f'self.randomTalk(text="{self._previousLine}")'
 				else:
@@ -324,7 +330,7 @@ class CopyTooTalk:
 
 			elif self._aDialogMessage and not self._usingFStrings:
 				# if it's a dialog message without a variable in it
-				replaceThisText = f'\'{self._copyOfOriginalText}\''
+				replaceThisText = f'{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol}'
 				if self._previousLine:
 					withThisText = f'self.randomTalk(text="{self._previousLine}")'
 				else:
@@ -335,7 +341,7 @@ class CopyTooTalk:
 
 			# if its a system message and not using f strings
 			elif not self._aDialogMessage and not self._usingFStrings:
-				replaceThisText = f'(msg=\'{self._copyOfOriginalText}\')'
+				replaceThisText = f'(msg={self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol})'
 				if self._previousLine:
 					withThisText = f'(self.randomTalk(text="{self._previousLine}"))'
 				else:
@@ -361,7 +367,7 @@ class CopyTooTalk:
 		# print the py file lines to the console. value is the current line to write
 		print(value)
 		# Write the lines to the actual PY file
-		if not self._testFirst:
+		if not self._testMode:
 			with open(sys.argv[1], 'w') as writer:
 				writer.write(value)
 
@@ -371,8 +377,8 @@ class CopyTooTalk:
 	# write changes to the talk file
 	def writeToTalkFile(self):
 		file = Path(f'{sys.argv[2]}/talks/{sys.argv[3]}.json')
-
-		if not self._testFirst:
+		print(f"Text file path is {file}")
+		if not self._testMode:
 			with open(file, 'r+') as file:
 				exisitingTalkData = json.load(file)
 				exisitingTalkData.update(self._finalTalk)
@@ -389,7 +395,7 @@ class CopyTooTalk:
 	def cleanUpCode(self):
 		# Open the PY file in read mode
 		print('Now removing all the # TC lines from the code')
-		if self._testFirst:
+		if self._testMode:
 			print('Because your in test mode you wont see the self.randomTalk conversions here ')
 			print('Scroll up to see those conversion. This is just showing the # TC comments removed')
 		print("________________________________________")
@@ -404,7 +410,7 @@ class CopyTooTalk:
 
 			print(self.cleanCode)
 
-			if not self._testFirst:
+			if not self._testMode:
 				with open(sys.argv[1], 'w') as writer:
 					writer.write(self.cleanCode)
 
