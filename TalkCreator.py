@@ -55,6 +55,10 @@ class CopyTooTalk:
 
 	 this will become text='self.randomTalk(text="okIwontSendMessage"),'
 	 rather than text='self.randomTalk(text="dialogMessage1")'
+
+	 ** ANOTHER TIP **
+	 Set self._testFirst to True and you can test the output without writing to any file.
+	 That way you can test before changing anything.Change back to false to write to file
 	"""
 
 
@@ -70,6 +74,8 @@ class CopyTooTalk:
 		self._copyOfOriginalText = ""
 		self._usingFStrings = False
 		self._previousLine = ""
+		self.cleanCode = ""
+		self._testFirst = True
 
 	#Create a class variable to shut sonar up
 	TEXT_F_STRING = 'text=f'
@@ -127,7 +133,7 @@ class CopyTooTalk:
 		# Set a counter for adding numbers to the talksfile dicionary item
 		self._counter += 1
 
-		# look up the line for start points and grab all text after that untill  end oint
+		# look up the line for start points and grab all text after that untill  end point
 		if CopyTooTalk.TEXT_F_STRING in line:
 			start = CopyTooTalk.TEXT_F_STRING
 			end = '\''
@@ -203,16 +209,16 @@ class CopyTooTalk:
 	def createtheTalkFileDictionary(self, textForTalkFile, line):
 		# create the talks file dictionary to be written
 
-		if not self._aDialogMessage:
-			key = 'systemMessage'
-			self._finalTalk[f'{key}{self._counter}'] = {
-				'default':
-					[
-						f'{textForTalkFile}'
-					]
-			}
-		else:
-			if self._previousLine:
+		if self._aDialogMessage:
+			if not self._previousLine:
+				key = 'systemMessage'
+				self._finalTalk[f'{key}{self._counter}'] = {
+					'default':
+						[
+							f'{textForTalkFile}'
+						]
+				}
+			else:
 				self._finalTalk[f'{self._previousLine}'] = {
 					'default':
 						[
@@ -222,9 +228,20 @@ class CopyTooTalk:
 						""
 					]
 				}
-			else:
+		else:
+			if not self._previousLine:
 				key = 'dialogMessage'
 				self._finalTalk[f'{key}{self._counter}'] = {
+					'default':
+						[
+							f'{textForTalkFile}'
+						],
+					'short':[
+						""
+					]
+				}
+			else:
+				self._finalTalk[f'{self._previousLine}'] = {
 					'default':
 						[
 							f'{textForTalkFile}'
@@ -344,8 +361,9 @@ class CopyTooTalk:
 		# print the py file lines to the console. value is the current line to write
 		print(value)
 		# Write the lines to the actual PY file
-		with open(sys.argv[1], 'w') as writer:
-			writer.write(value)
+		if not self._testFirst:
+			with open(sys.argv[1], 'w') as writer:
+				writer.write(value)
 
 		self.writeToTalkFile()
 
@@ -354,11 +372,41 @@ class CopyTooTalk:
 	def writeToTalkFile(self):
 		file = Path(f'{sys.argv[2]}/talks/{sys.argv[3]}.json')
 
-		with open(file, 'r+') as file:
-			exisitingTalkData = json.load(file)
-			exisitingTalkData.update(self._finalTalk)
-			file.seek(0)
-			json.dump(exisitingTalkData, file, sort_keys=True, ensure_ascii=False, indent=4)
+		if not self._testFirst:
+			with open(file, 'r+') as file:
+				exisitingTalkData = json.load(file)
+				exisitingTalkData.update(self._finalTalk)
+				file.seek(0)
+				json.dump(exisitingTalkData, file, sort_keys=True, ensure_ascii=False, indent=4)
+		else:
+			print('The Talks file will look like this')
+			print('___________________________________________')
+			print("")
+			print(json.dumps(self._finalTalk, sort_keys=True, ensure_ascii=False, indent=4))
+
+		self.cleanUpCode()
+
+	def cleanUpCode(self):
+		# Open the PY file in read mode
+		print('Now removing all the # TC lines from the code')
+		if self._testFirst:
+			print('Because your in test mode you wont see the self.randomTalk conversions here ')
+			print('Scroll up to see those conversion. This is just showing the # TC comments removed')
+		print("________________________________________")
+		with open(sys.argv[1], 'r') as reader:
+			fileData = reader.read()
+
+			# for each line of text in the PY file.....
+			for position, line in enumerate(fileData.split("\n")):
+				# iterate over the line looking # TC comments
+				if not '# TC' in line:
+					self.cleanCode = f'{self.cleanCode}\n{line}'
+
+			print(self.cleanCode)
+
+			if not self._testFirst:
+				with open(sys.argv[1], 'w') as writer:
+					writer.write(self.cleanCode)
 
 
 copy2talk = CopyTooTalk()
