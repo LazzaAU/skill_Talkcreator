@@ -44,7 +44,16 @@ Extra Tip....
 - Then use the translator skill to translate your System Log messages to other languages
 - Now the world gets to read System Logs in their natural language :)
 
- 
+### New Feature
+
+    If you add "# TC <talksName>" above the line you want to convert, it will use what ever <talkName> is
+	 instead of calling it systemMessage1 or dialogMessage2 etc. Example
+    ```
+	 # TC okIwontSendMessage
+	 text='ok, no worries. I wont send that message then'
+    ```
+	 this will become text='self.randomTalk(text="okIwontSendMessage"),'
+	 rather than text='self.randomTalk(text="dialogMessage1")'
 
 
 

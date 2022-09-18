@@ -45,6 +45,16 @@ class CopyTooTalk:
 	EG parmeters = $FilePath$ $ContentRoot$ en or $FilePath$ $ContentRoot$ de etc
 
 	TIP* Excluding the msg= from a system log message will exclude it from being processed
+	The script looks for text='' not text="" etc, so use single quotes
+
+	If you add "# TC <talksName>" above the line you want to convert it will use what ever <talkName> is
+	 instead of calling it systemMessage1 or dialogMessage2 etc. Example
+
+	 # TC okIwontSendMessage
+	 text='ok, no worries. I wont send that message then'
+
+	 this will become text='self.randomTalk(text="okIwontSendMessage"),'
+	 rather than text='self.randomTalk(text="dialogMessage1")'
 	"""
 
 
@@ -59,6 +69,7 @@ class CopyTooTalk:
 		self._aDialogMessage = False
 		self._copyOfOriginalText = ""
 		self._usingFStrings = False
+		self._previousLine = ""
 
 	#Create a class variable to shut sonar up
 	TEXT_F_STRING = 'text=f'
@@ -72,6 +83,8 @@ class CopyTooTalk:
 			# for each line of text in the PY file.....
 			for position, line in enumerate(fileData.split("\n")):
 				# iterate over the line looking for system and dialog messages
+				if '# TC' in line:
+					self._previousLine = line
 				for item in self._msgList:
 					if 'self.randomTalk' in line:
 						print(f'Skipping this line as it looks like its already done. {line}')
@@ -128,7 +141,7 @@ class CopyTooTalk:
 			start = '(msg=\''
 			end = '\')'
 		else:
-			print('OOPS, something went wrong. The line probably doesn\'t have a text string and is using a var ??')
+			print('OOPS, something went wrong. The line probably doesn\'t have a text  string and is using a var or your using \"\" instead of \'\' ??')
 			return
 
 		# if the line is a f string then change the start line position
@@ -151,6 +164,9 @@ class CopyTooTalk:
 			# if the line is not a f string then must be a msg= so change start position to this
 			textForTalkFile = line[line.find(start) + 0 + len(start):line.rfind(end)]
 			self._copyOfOriginalText = textForTalkFile
+		if self._previousLine:
+			self._previousLine = self._previousLine.split('TC')[1].replace(" ","")
+			print(f"previous line is now {self._previousLine}")
 
 		self.extractTheVarsFromMessage(textForTalkFile=textForTalkFile, line=line)
 
@@ -196,16 +212,27 @@ class CopyTooTalk:
 					]
 			}
 		else:
-			key = 'dialogMessage'
-			self._finalTalk[f'{key}{self._counter}'] = {
-				'default':
-					[
-						f'{textForTalkFile}'
-					],
-				'short':[
-					""
-				]
-			}
+			if self._previousLine:
+				self._finalTalk[f'{self._previousLine}'] = {
+					'default':
+						[
+							f'{textForTalkFile}'
+						],
+					'short':[
+						""
+					]
+				}
+			else:
+				key = 'dialogMessage'
+				self._finalTalk[f'{key}{self._counter}'] = {
+					'default':
+						[
+							f'{textForTalkFile}'
+						],
+					'short':[
+						""
+					]
+				}
 		self.createPYfileLines(textForTalkFile=textForTalkFile, line=line)
 
 
@@ -232,12 +259,19 @@ class CopyTooTalk:
 			# if the line is not a dialog message and has variables and uses a f string
 			if not self._aDialogMessage and self._usingFStrings:
 				replaceThisText = f'(msg=f\'{self._copyOfOriginalText}\')'
-				withThisText = f'(self.randomTalk(text="systemMessage{self._counter}", replace=[{cleanValuesFromList}]))'
+				if self._previousLine:
+					withThisText = f'(self.randomTalk(text="{self._previousLine}", replace=[{cleanValuesFromList}]))'
+				else:
+					withThisText = f'(self.randomTalk(text="systemMessage{self._counter}", replace=[{cleanValuesFromList}]))'
 
 			elif self._aDialogMessage and self._usingFStrings:
 				# if the line is a dialog message and has variables and uses a f String
 				replaceThisText = f'f\'{self._copyOfOriginalText}\''
-				withThisText = f'self.randomTalk(text="dialogMessage{self._counter}", replace=[{cleanValuesFromList}])'
+				if self._previousLine:
+					withThisText = f'self.randomTalk(text="{self._previousLine}", replace=[{cleanValuesFromList}])'
+				else:
+					withThisText = f'self.randomTalk(text="dialogMessage{self._counter}", replace=[{cleanValuesFromList}])'
+
 				# reset textInput status
 				self._aDialogMessage = False
 
@@ -253,30 +287,45 @@ class CopyTooTalk:
 			# if it's a system message without a variable in it but still a fstring
 			if not self._aDialogMessage and self._usingFStrings:
 				replaceThisText = f'msg=f\'{self._copyOfOriginalText}\')'
-				withThisText = f'self.randomTalk(text="systemMessage{self._counter}"))'
+				if self._previousLine:
+					withThisText = f'self.randomTalk(text="{self._previousLine}"))'
+				else:
+					withThisText = f'self.randomTalk(text="systemMessage{self._counter}"))'
 
 			# if its a dialog message with no vars in it and using f strings
 			elif self._aDialogMessage and self._usingFStrings:
 				# if it's a dialog message without a variable in it
 				replaceThisText = f'f\'{self._copyOfOriginalText}\''
-				withThisText = f'self.randomTalk(text="dialogMessage{self._counter}")'
-				# reset the textInput status
+				if self._previousLine:
+					withThisText = f'self.randomTalk(text="{self._previousLine}")'
+				else:
+					withThisText = f'self.randomTalk(text="dialogMessage{self._counter}")'
+
+			# reset the textInput status
 				self._aDialogMessage = False
 			# if its a dialog message and not using f strings
 
 			elif self._aDialogMessage and not self._usingFStrings:
 				# if it's a dialog message without a variable in it
 				replaceThisText = f'\'{self._copyOfOriginalText}\''
-				withThisText = f'self.randomTalk(text="dialogMessage{self._counter}")'
+				if self._previousLine:
+					withThisText = f'self.randomTalk(text="{self._previousLine}")'
+				else:
+					withThisText = f'self.randomTalk(text="dialogMessage{self._counter}")'
+
 				# reset the textInput status
 				self._aDialogMessage = False
 
 			# if its a system message and not using f strings
 			elif not self._aDialogMessage and not self._usingFStrings:
 				replaceThisText = f'(msg=\'{self._copyOfOriginalText}\')'
-				withThisText = f'(self.randomTalk(text="dialogMessage{self._counter}"))'
+				if self._previousLine:
+					withThisText = f'(self.randomTalk(text="{self._previousLine}"))'
+				else:
+					withThisText = f'(self.randomTalk(text="dialogMessage{self._counter}"))'
 
 			writeThisToPYFile = line.replace(replaceThisText, withThisText)
+			self._previousLine = ""
 
 			# add the modified line to a self._newCode object
 			self._newCode = f'{self._newCode}\n{writeThisToPYFile}'
@@ -304,11 +353,10 @@ class CopyTooTalk:
 	# write changes to the talk file
 	def writeToTalkFile(self):
 		file = Path(f'{sys.argv[2]}/talks/{sys.argv[3]}.json')
-		print(f'file path is {file}')
+
 		with open(file, 'r+') as file:
 			exisitingTalkData = json.load(file)
 			exisitingTalkData.update(self._finalTalk)
-
 			file.seek(0)
 			json.dump(exisitingTalkData, file, sort_keys=True, ensure_ascii=False, indent=4)
 
