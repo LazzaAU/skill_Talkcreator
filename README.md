@@ -4,7 +4,7 @@
 
 Creates the talk file for loginfo type code
 
-- Author: Lazzaau
+- Author: Lazza
 - Maintainers: N/A
 - Alice minimum version: 1.0.0
 - Languages:
@@ -17,8 +17,8 @@ Creates the talk file for loginfo type code
         then open testPY.py file and run the configuration on this file to see the outcome
         
 In normal use, you would write your entire skill then run the TalkCreator script
- to create a talks file which you can then add second and third etc random lines to manually..
- This script gets rid of the boring , time consuming bits :)
+ to create a talks file which you can then add second and third etc. random lines too manually.
+ This script gets rid of the boring , time-consuming bits :)
 
 **Second NOTE**
 
@@ -28,13 +28,14 @@ In normal use, you would write your entire skill then run the TalkCreator script
 
 See doc string in TalkCreator.py for more info on the skill
 
-**To setup your run configuration in pycharm **
+**To set up your run configuration in pycharm **
+
 
 1. For the script field = point it to TalkCreator.py file
-2. For paramaters field  = ```$FilePath$ $ContentRoot$ en``` #NOTE: replace en with your default language file IE: de or fr etc
+2. For paramaters field  = ```$FilePath$ $FileDir$ en``` #NOTE: replace en with your default language file IE: de or fr etc
 3. Working directory shoudl automatically be filed when you select the script
 4. Excecution boxes can all stay unticked
-5. oh and name it whatever, maybe ```talkCreator```?
+5. Oh! and name it whatever, maybe ```talkCreator```?
 
 Refer configSETUP.png if stuck.
 
@@ -44,16 +45,24 @@ Extra Tip....
 - Then use the translator skill to translate your System Log messages to other languages
 - Now the world gets to read System Logs in their natural language :)
 
-### New Feature
+### New Features
 
-    If you add "# TC <talksName>" above the line you want to convert, it will use what ever <talkName> is
-	 instead of calling it systemMessage1 or dialogMessage2 etc. Example
+1. If you add "# TC *talksName*" above the line you want to convert, it will use 
+what ever <talkName> is instead of calling it systemMessage1 or dialogMessage2 etc.
+
+Example
+
     ```
 	 # TC okIwontSendMessage
 	 text='ok, no worries. I wont send that message then'
     ```
-	 this will become text='self.randomTalk(text="okIwontSendMessage"),'
-	 rather than text='self.randomTalk(text="dialogMessage1")'
+this will become text='self.randomTalk(text="okIwontSendMessage"),'
+ rather than text='self.randomTalk(text="dialogMessage1")'
 
+2. In the TalkCreator.py file set self._testMode to True to run the talkCreator 
+without actually writing to any file. You can then see the output in pycharms
+run console to confirm it will write as expected.
 
+3. Set self._speechSymbol to "\'" if you normally write your code like text='this is my message'
+set it to '\"' if you usually write your code like text="this is my message"
 
