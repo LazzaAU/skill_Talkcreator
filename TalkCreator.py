@@ -57,13 +57,15 @@ class CopyTooTalk:
 
 	 this will become text='self.randomTalk(text="okIwontSendMessage"),'
 	 rather than text='self.randomTalk(text="dialogMessage1")'
+	and if its a system message then it will become text='self.randomTalk(text="systemokIwontSendMessage")
 
 	 ** ANOTHER TIP **
 	 Set self._testMode to True and you can test the output without writing to any file.
 	 That way you can test before changing anything.Change back to false to write to file
 
 	 ** And Another **
-	 Make sure at minimum, your talks file has {}. A completely blank talks file will raise a error
+	 Make sure at minimum, your talks file has {}. A completely blank talks file will raise a error.
+
 	"""
 
 
@@ -82,6 +84,7 @@ class CopyTooTalk:
 		self.cleanCode = ""
 		self._testMode = False # set to True to not write anything, set to False to write to files
 		self._speechSymbol = '\"' # set to "\'" if you normally use text='' rather than text=""
+
 
 	#Create a class variable to shut sonar up
 	TEXT_F_STRING = 'text=f'
@@ -215,7 +218,7 @@ class CopyTooTalk:
 	def createtheTalkFileDictionary(self, textForTalkFile, line):
 		# create the talks file dictionary to be written
 
-		if self._aDialogMessage:
+		if not self._aDialogMessage:
 			if not self._previousLine:
 				key = 'systemMessage'
 				self._finalTalk[f'{key}{self._counter}'] = {
@@ -225,14 +228,11 @@ class CopyTooTalk:
 						]
 				}
 			else:
-				self._finalTalk[f'{self._previousLine}'] = {
+				self._finalTalk[f'system{self._previousLine}'] = {
 					'default':
 						[
 							f'{textForTalkFile}'
-						],
-					'short':[
-						""
-					]
+						]
 				}
 		else:
 			if not self._previousLine:
@@ -283,7 +283,7 @@ class CopyTooTalk:
 			if not self._aDialogMessage and self._usingFStrings:
 				replaceThisText = f'(msg=f{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol})'
 				if self._previousLine:
-					withThisText = f'(self.randomTalk(text="{self._previousLine}", replace=[{cleanValuesFromList}]))'
+					withThisText = f'(self.randomTalk(text="system{self._previousLine}", replace=[{cleanValuesFromList}]))'
 				else:
 					withThisText = f'(self.randomTalk(text="systemMessage{self._counter}", replace=[{cleanValuesFromList}]))'
 
@@ -311,7 +311,7 @@ class CopyTooTalk:
 			if not self._aDialogMessage and self._usingFStrings:
 				replaceThisText = f'msg=f{self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol})'
 				if self._previousLine:
-					withThisText = f'self.randomTalk(text="{self._previousLine}"))'
+					withThisText = f'self.randomTalk(text="system{self._previousLine}"))'
 				else:
 					withThisText = f'self.randomTalk(text="systemMessage{self._counter}"))'
 
@@ -343,7 +343,7 @@ class CopyTooTalk:
 			elif not self._aDialogMessage and not self._usingFStrings:
 				replaceThisText = f'(msg={self._speechSymbol}{self._copyOfOriginalText}{self._speechSymbol})'
 				if self._previousLine:
-					withThisText = f'(self.randomTalk(text="{self._previousLine}"))'
+					withThisText = f'(self.randomTalk(text="system{self._previousLine}"))'
 				else:
 					withThisText = f'(self.randomTalk(text="dialogMessage{self._counter}"))'
 
